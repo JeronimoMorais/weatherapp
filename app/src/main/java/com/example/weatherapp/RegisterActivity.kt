@@ -2,7 +2,6 @@ package com.example.weatherapp
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -33,13 +32,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class LoginActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
+        setContent{
             Scaffold { innerPadding ->
-                LoginPage(modifier = Modifier.padding(innerPadding))
+                RegisterPage(modifier = Modifier.padding(innerPadding))
             }
         }
     }
@@ -48,9 +47,12 @@ class LoginActivity : AppCompatActivity() {
 @SuppressLint("ContextCastToActivity")
 @Preview(showBackground = true)
 @Composable
-fun LoginPage(modifier: Modifier = Modifier) {
+fun RegisterPage(modifier: Modifier = Modifier) {
+    var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var repeat_password by rememberSaveable { mutableStateOf("") }
+
     val activity = LocalContext.current as? Activity
     Column(
         modifier = modifier.padding(16.dp).fillMaxSize(),
@@ -58,9 +60,19 @@ fun LoginPage(modifier: Modifier = Modifier) {
         horizontalAlignment = CenterHorizontally
     ) {
         Text(
-            text = "Bem-vindo/a!",
-            fontSize = 24.sp
+            text = "Cadastro de Usuário",
+            fontSize = 10.sp
         )
+
+        OutlinedTextField(
+            value = name,
+            label = { Text(text = "Digite seu nome") },
+            modifier = modifier.fillMaxWidth(fraction = 0.9f),
+            onValueChange = { name = it }
+        )
+
+        Spacer(modifier = modifier.size(10.dp))
+
         OutlinedTextField(
             value = email,
             label = { Text(text = "Digite seu e-mail") },
@@ -68,7 +80,7 @@ fun LoginPage(modifier: Modifier = Modifier) {
             onValueChange = { email = it }
         )
 
-        Spacer(modifier = modifier.size(24.dp))
+        Spacer(modifier = modifier.size(10.dp))
 
         OutlinedTextField(
             value = password,
@@ -77,28 +89,31 @@ fun LoginPage(modifier: Modifier = Modifier) {
             onValueChange = { password = it },
             visualTransformation = PasswordVisualTransformation()
         )
+
+        Spacer(modifier = modifier.size(10.dp))
+
+        OutlinedTextField(
+            value = repeat_password,
+            label = { Text(text = "Digite sua senha novamente") },
+            modifier = modifier.fillMaxWidth(fraction = 0.9f),
+            onValueChange = { repeat_password = it },
+            visualTransformation = PasswordVisualTransformation()
+        )
+
         Row(modifier = modifier) {
             Button(
                 onClick = {
-                    Toast.makeText(activity, "Login OK!", Toast.LENGTH_LONG).show()
-                }
-            ) {
-                Text("Login")
-            }
-            Button(
-                onClick = { email = ""; password = "" },
-                enabled = email.isNotEmpty() && password.isNotEmpty()
-            ) {
-                Text("Limpar")
-            }
-
-            Button(
-                onClick = {
-                      val intent = Intent(activity, RegisterActivity::class.java)
-                      activity?.startActivity(intent)
-                }
+                    Toast.makeText(activity, "Registrado com sucesso!", Toast.LENGTH_LONG).show()
+                    activity?.finish()
+                }, enabled = password == repeat_password
             ) {
                 Text("Registrar")
+            }
+            Button(
+                onClick = { name = ""; email = ""; password = ""; repeat_password = "" },
+                enabled = name.isNotEmpty() || email.isNotEmpty() || password.isNotEmpty() || password.isNotEmpty()
+            ) {
+                Text("Limpar")
             }
         }
     }
