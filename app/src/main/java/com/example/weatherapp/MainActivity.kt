@@ -60,15 +60,9 @@ fun HomePage(modifier : Modifier = Modifier){
     Column ( modifier = modifier.fillMaxSize().padding(32.dp),
         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally ) {
 
-        Text(text = "HomePage", fontSize = 28.sp,modifier = Modifier.padding(32.dp))
+        Text(text = "Seja bem-vindo!", fontSize = 28.sp,modifier = Modifier.padding(32.dp))
 
         Button(onClick = {
-
-            activity?.startActivity(
-                Intent(activity, MainActivity::class.java).setFlags(
-                    FLAG_ACTIVITY_SINGLE_TOP
-                )
-            )
 
             activity?.finish()
 
