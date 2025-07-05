@@ -71,7 +71,7 @@ fun RegisterPage(modifier: Modifier = Modifier) {
             onValueChange = { name = it }
         )
 
-        Spacer(modifier = modifier.size(10.dp))
+        //Spacer(modifier = modifier.size(10.dp))
 
         OutlinedTextField(
             value = email,
@@ -80,7 +80,7 @@ fun RegisterPage(modifier: Modifier = Modifier) {
             onValueChange = { email = it }
         )
 
-        Spacer(modifier = modifier.size(10.dp))
+        //Spacer(modifier = modifier.size(10.dp))
 
         OutlinedTextField(
             value = password,
@@ -90,7 +90,7 @@ fun RegisterPage(modifier: Modifier = Modifier) {
             visualTransformation = PasswordVisualTransformation()
         )
 
-        Spacer(modifier = modifier.size(10.dp))
+        //Spacer(modifier = modifier.size(10.dp))
 
         OutlinedTextField(
             value = repeat_password,
