@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.sp
 @Composable fun ListPage() {
     Column(
         modifier = Modifier.fillMaxSize()
-            .background(Color.Blue)
+            .background(Color.Yellow)
             .wrapContentSize(Alignment.Center)
     ) {
         Text( text = "Favoritas",

@@ -17,12 +17,12 @@ import androidx.compose.ui.unit.sp
 fun MapPage() {
     Column(
         modifier = Modifier.fillMaxSize()
-            .background(Color.Blue)
+            .background(Color.Gray)
             .wrapContentSize(Alignment.Center)
     ) {
         Text( text = "Mapa",
             fontWeight = FontWeight.Bold,
-            color = Color.Gray,
+            color = Color.Black,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
             fontSize = 20.sp )
