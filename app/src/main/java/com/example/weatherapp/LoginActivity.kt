@@ -3,6 +3,7 @@ package com.example.weatherapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -32,6 +33,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +56,9 @@ fun LoginPage(modifier: Modifier = Modifier) {
     var password by rememberSaveable { mutableStateOf("") }
     val activity = LocalContext.current as? Activity
     Column(
-        modifier = modifier.padding(10.dp).fillMaxSize(),
+        modifier = modifier
+            .padding(10.dp)
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = CenterHorizontally
     ) {
@@ -68,8 +73,6 @@ fun LoginPage(modifier: Modifier = Modifier) {
             onValueChange = { email = it }
         )
 
-        //Spacer(modifier = modifier.size(24.dp))
-
         OutlinedTextField(
             value = password,
             label = { Text(text = "Digite sua senha") },
@@ -80,9 +83,20 @@ fun LoginPage(modifier: Modifier = Modifier) {
         Row(modifier = modifier) {
             Button(
                 onClick = {
-                    Toast.makeText(activity, "Login OK!", Toast.LENGTH_LONG).show()
-                    val intent = Intent(activity, MainActivity::class.java)
-                    activity?.startActivity(intent)
+                    Firebase.auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(activity!!) { task ->
+                            if (task.isSuccessful) {
+                                activity.startActivity(
+                                    Intent(
+                                        activity,
+                                        MainActivity::class.java
+                                    ).setFlags(FLAG_ACTIVITY_SINGLE_TOP)
+                                )
+                                Toast.makeText (activity, "Login OK!", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(activity, "Login FALHOU!", Toast.LENGTH_LONG).show()
+                            }
+                        }
                 }
             ) {
                 Text("Login")
@@ -96,8 +110,8 @@ fun LoginPage(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                      val intent = Intent(activity, RegisterActivity::class.java)
-                      activity?.startActivity(intent)
+                    val intent = Intent(activity, RegisterActivity::class.java)
+                    activity?.startActivity(intent)
                 }
             ) {
                 Text("Registrar")
