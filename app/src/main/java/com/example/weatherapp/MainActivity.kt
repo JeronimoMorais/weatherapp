@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.example.weatherapp.model.MainViewModel
 import com.example.weatherapp.ui.HomePage
 import com.example.weatherapp.ui.nav.BottomNavBar
 import com.example.weatherapp.ui.nav.BottomNavItem
@@ -33,6 +35,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val viewModel : MainViewModel by viewModels()
             val navController = rememberNavController()
             WeatherAppTheme {
                 Scaffold(
@@ -65,7 +68,7 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        MainNavHost(navController = navController)
+                        MainNavHost(navController = navController, viewModel)
                     }
                 }
             }
@@ -73,24 +76,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-//@Composable
-//fun Greeting(name: String, modifier: Modifier = Modifier) {
-//    Text(
-//        text = "Bem-vindo, $name!",
-//        modifier = modifier
-//    )
-//}
-//
 //@Preview(showBackground = true)
 //@Composable
-//fun GreetingPreview() {
-//    WeatherAppTheme {
-//        Greeting("Android")
-//    }
+//fun HomePagePreview(){
+//    WeatherAppTheme { HomePage() }
 //}
-
-@Preview(showBackground = true)
-@Composable
-fun HomePagePreview(){
-    WeatherAppTheme { HomePage() }
-}

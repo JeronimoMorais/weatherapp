@@ -12,29 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.example.weatherapp.model.MainViewModel
 
-//@Composable
-//fun HomePage(modifier : Modifier = Modifier){
-//    val activity = LocalActivity.current
-//
-//    Column(
-//        modifier = modifier.fillMaxSize().padding(32.dp),
-//        verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//
-//        Text(text = "Seja bem-vindo!", fontSize = 28.sp, modifier = Modifier.padding(32.dp))
-//
-//        Button(onClick = {
-//
-//            activity?.finish()
-//
-//        }) { Text("Logout") }
-//    }
-//}
-
-@Composable fun HomePage(modifier: Modifier = Modifier) {
+@Composable fun HomePage(viewModel: MainViewModel) {
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(Color.Blue)
             .wrapContentSize(Alignment.Center)
     ) {
