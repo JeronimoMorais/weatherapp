@@ -35,7 +35,7 @@ fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Yellow)
+            .background(Color.Black)
     ) {
         items(cityList, key = { it.name })
         { city ->
