@@ -17,9 +17,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.weatherapp.db.fb.FBDatabase
 import com.example.weatherapp.model.MainViewModel
+import com.example.weatherapp.model.MainViewModelFactory
 import com.example.weatherapp.ui.nav.BottomNavBar
 import com.example.weatherapp.ui.nav.BottomNavItem
 import com.example.weatherapp.ui.nav.MainNavHost
@@ -33,14 +37,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: MainViewModel by viewModels()
+            val fbDB = remember { FBDatabase() }
+            val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(fbDB))
             val navController = rememberNavController()
             WeatherAppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { val name = viewModel.user?.name?:"[não logado]"
-                                Text("Bem-vindo/a! $name") },
+                            title = {
+                                val name = viewModel.user?.name ?: "[não logado]"
+                                Text("Bem-vindo/a! $name")
+                            },
                             actions = {
                                 IconButton(onClick = {
                                     Firebase.auth.signOut()
@@ -76,9 +83,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun HomePagePreview(){
-//    WeatherAppTheme { HomePage() }
-//}
