@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,9 @@ import com.example.weatherapp.model.City
 import androidx.compose.material3.IconButton
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.platform.LocalContext
 import com.example.weatherapp.model.MainViewModel
 
 @Composable
@@ -35,7 +39,7 @@ fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Magenta)
+            .background(Color.White)
     ) {
         items(cityList, key = { it.name })
         { city ->
