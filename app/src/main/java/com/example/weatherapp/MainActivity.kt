@@ -34,6 +34,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.weatherapp.api.WeatherService
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,18 +43,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
-            val fbDB = remember { FBDatabase() }
-            val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(fbDB))
-            val navController = rememberNavController()
-            var showDialog by remember { mutableStateOf(false) }
             WeatherAppTheme {
+                val fbDB = remember { FBDatabase() }
+                val weatherService = remember { WeatherService() }
+                val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(fbDB, weatherService))
+                val navController = rememberNavController()
+                var showDialog by remember { mutableStateOf(false) }
+
                 if (showDialog) CityDialog(
                     onDismiss = { showDialog = false },
                     onConfirm = { city ->
                         if (city.isNotBlank()) viewModel.add(city)
                         showDialog = false
                     })
+
                 Scaffold(
                     topBar = {
                         TopAppBar(
@@ -65,9 +71,8 @@ class MainActivity : ComponentActivity() {
                                     Firebase.auth.signOut()
                                 }) {
                                     Icon(
-                                        imageVector =
-                                            Icons.AutoMirrored.Filled.ExitToApp,
-                                        contentDescription = "Localized description"
+                                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                        contentDescription = "Sair"
                                     )
                                 }
                             }
@@ -82,7 +87,7 @@ class MainActivity : ComponentActivity() {
                         BottomNavBar(navController = navController, items)
                     },
                     floatingActionButton = {
-                        FloatingActionButton(onClick = {showDialog = true}) {
+                        FloatingActionButton(onClick = { showDialog = true }) {
                             Icon(Icons.Default.Add, contentDescription = "Adicionar")
                         }
                     }
@@ -95,3 +100,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
