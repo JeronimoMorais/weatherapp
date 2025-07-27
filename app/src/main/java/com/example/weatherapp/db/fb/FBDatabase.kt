@@ -27,7 +27,8 @@ class FBDatabase {
                 listener ?. onUserSignOut ()
                 return@addAuthStateListener
             }
-            val refCurrUser = db.collection("users").document(auth.currentUser!!.uid)
+            val refCurrUser = db.collection("users")
+                .document(auth.currentUser!!.uid)
                 refCurrUser.get ().addOnSuccessListener {
                     it.toObject(FBUser::class.java)?.let { user ->
                         listener?.onUserLoaded(user)
