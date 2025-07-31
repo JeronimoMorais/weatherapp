@@ -35,7 +35,6 @@ import coil.compose.AsyncImage
 @Composable
 fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     val cityList = viewModel.cities
-    val activity = LocalActivity.current
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -53,11 +52,6 @@ fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
                 onClick = {
                     viewModel.city = city
                     viewModel.page = Route.Home
-//                    Toast.makeText(
-//                        activity,
-//                        "Clicou em ${city.name}",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
                 },
                 onClose = {
                     viewModel.remove(city)
@@ -81,7 +75,6 @@ fun CityItem(
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-//        Icon(Icons.Rounded.FavoriteBorder, contentDescription = "")
         AsyncImage( model = city.weather?.imgUrl, modifier = Modifier.size(75.dp),
             error = painterResource(id = R.drawable.loading),
             contentDescription = "Imagem" )

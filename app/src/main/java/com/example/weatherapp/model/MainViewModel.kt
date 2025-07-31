@@ -17,13 +17,15 @@ import com.google.android.gms.maps.model.LatLng
 import kotlin.collections.remove
 
 
-
 class MainViewModel(private val db: FBDatabase, private val service: WeatherService) : ViewModel(),
     FBDatabase.Listener {
 
     private var _page = mutableStateOf<Route>(Route.Home)
-    var page: Route get() = _page.value
-        set(tmp) { _page.value = tmp }
+    var page: Route
+        get() = _page.value
+        set(tmp) {
+            _page.value = tmp
+        }
 
     private val _cities = mutableStateMapOf<String, City>()
     val cities: List<City> get() = _cities.values.toList()
@@ -85,6 +87,17 @@ class MainViewModel(private val db: FBDatabase, private val service: WeatherServ
 
     fun add(name: String, location: LatLng? = null) {
         db.add(City(name = name, location = location).toFBCity())
+    }
+
+    fun loadBitmap(name: String) {
+        val city = _cities[name]
+        service.getBitmap(city?.weather!!.imgUrl) { bitmap ->
+            val newCity =
+                city.copy(weather = city.weather?.copy(bitmap = bitmap))
+            _cities.remove(name)
+            _cities[name] =
+                newCity
+        }
     }
 
     override fun onUserLoaded(user: FBUser) {

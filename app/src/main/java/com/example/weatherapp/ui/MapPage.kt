@@ -19,14 +19,15 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import android.Manifest
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.scale
+import com.example.weatherapp.R
 
 
 @Composable
 fun MapPage(viewModel: MainViewModel) {
-    val recife = LatLng(-8.05, -34.9)
-    val caruaru = LatLng(-8.27, -35.98)
-    val joaopessoa = LatLng(-7.12, -34.84)
     val camPosState = rememberCameraPositionState()
     val context = LocalContext.current
     val hasLocationPermission by remember {
@@ -40,7 +41,6 @@ fun MapPage(viewModel: MainViewModel) {
     }
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-//        onMapClick = { viewModel.add("Cidade @${it.latitude}:${it.longitude}", location = it)},
         onMapClick = { viewModel.add(location = it) },
         cameraPositionState = camPosState,
         properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
@@ -48,42 +48,28 @@ fun MapPage(viewModel: MainViewModel) {
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
+                val image = it.weather?.bitmap ?: getDrawable(context, R.drawable.loading)!!.toBitmap()
+                val marker = BitmapDescriptorFactory.fromBitmap(image.scale(120, 120))
+                Marker(
+                    state =
+                        MarkerState(
+                            position = it.location
+                        ),
+                    title = it.name,
+                    icon = marker,
+                    snippet = it.weather?.desc ?: "Carregando..."
+                )
                 LaunchedEffect(it.name) {
                     if (it.weather == null) {
                         viewModel.loadWeather(it.name)
                     }
                 }
-                Marker(
-                    state = MarkerState(position = it.location),
-                    title = it.name,
-                    snippet = it.weather?.desc?:"Carregando...")
+            }
+            LaunchedEffect(it.weather) {
+                if (it.weather != null && it.weather!!.bitmap == null) {
+                    viewModel.loadBitmap(it.name)
+                }
             }
         }
-        Marker(
-            state = MarkerState(position = recife),
-            title = "Recife",
-            snippet = "Marcador em Recife",
-            icon = BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_BLUE
-            )
-        )
-
-        Marker(
-            state = MarkerState(position = caruaru),
-            title = "Caruaru",
-            snippet = "Marcador em Caruaru",
-            icon = BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_GREEN
-            )
-        )
-
-        Marker(
-            state = MarkerState(position = joaopessoa),
-            title = "João Pessoa",
-            snippet = "Marcador em João Pessoa",
-            icon = BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_RED
-            )
-        )
     }
 }
