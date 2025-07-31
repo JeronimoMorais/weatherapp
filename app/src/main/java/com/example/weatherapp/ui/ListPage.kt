@@ -1,7 +1,5 @@
 package com.example.weatherapp.ui
 
-import android.app.Activity
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -29,6 +27,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
 import com.example.weatherapp.model.MainViewModel
+import com.example.weatherapp.ui.nav.Route
 
 @Composable
 fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
@@ -50,6 +49,7 @@ fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
                 city = city,
                 onClick = {
                     viewModel.city = city
+                    viewModel.page = Route.Home
 //                    Toast.makeText(
 //                        activity,
 //                        "Clicou em ${city.name}",

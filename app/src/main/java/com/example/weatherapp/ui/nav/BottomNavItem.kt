@@ -18,7 +18,8 @@ sealed interface Route {
 sealed class BottomNavItem(
     val title: String,
     val icon: ImageVector,
-    val route: Route)
+    val route: Route
+)
 {
     data object HomeButton :
         BottomNavItem("Início", Icons.Default.Home, Route.Home)
