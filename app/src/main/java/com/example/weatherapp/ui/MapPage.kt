@@ -19,22 +19,26 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import android.Manifest
+import androidx.compose.runtime.LaunchedEffect
+
 
 @Composable
 fun MapPage(viewModel: MainViewModel) {
     val recife = LatLng(-8.05, -34.9)
     val caruaru = LatLng(-8.27, -35.98)
     val joaopessoa = LatLng(-7.12, -34.84)
-    val camPosState = rememberCameraPositionState ()
+    val camPosState = rememberCameraPositionState()
     val context = LocalContext.current
     val hasLocationPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) ==
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) ==
                     PackageManager.PERMISSION_GRANTED
         )
     }
-    GoogleMap (
+    GoogleMap(
         modifier = Modifier.fillMaxSize(),
 //        onMapClick = { viewModel.add("Cidade @${it.latitude}:${it.longitude}", location = it)},
         onMapClick = { viewModel.add(location = it) },
@@ -44,11 +48,15 @@ fun MapPage(viewModel: MainViewModel) {
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
+                LaunchedEffect(it.name) {
+                    if (it.weather == null) {
+                        viewModel.loadWeather(it.name)
+                    }
+                }
                 Marker(
                     state = MarkerState(position = it.location),
                     title = it.name,
-                    snippet = "${it.location}"
-                )
+                    snippet = it.weather?.desc?:"Carregando...")
             }
         }
         Marker(
@@ -56,7 +64,8 @@ fun MapPage(viewModel: MainViewModel) {
             title = "Recife",
             snippet = "Marcador em Recife",
             icon = BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_BLUE)
+                BitmapDescriptorFactory.HUE_BLUE
+            )
         )
 
         Marker(
@@ -64,7 +73,8 @@ fun MapPage(viewModel: MainViewModel) {
             title = "Caruaru",
             snippet = "Marcador em Caruaru",
             icon = BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_GREEN)
+                BitmapDescriptorFactory.HUE_GREEN
+            )
         )
 
         Marker(
@@ -72,7 +82,8 @@ fun MapPage(viewModel: MainViewModel) {
             title = "João Pessoa",
             snippet = "Marcador em João Pessoa",
             icon = BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_RED)
+                BitmapDescriptorFactory.HUE_RED
+            )
         )
     }
 }

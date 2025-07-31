@@ -27,9 +27,7 @@ import com.example.weatherapp.model.City
 import androidx.compose.material3.IconButton
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.LaunchedEffect
 import com.example.weatherapp.model.MainViewModel
 
 @Composable
@@ -43,6 +41,11 @@ fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     ) {
         items(cityList, key = { it.name })
         { city ->
+            LaunchedEffect(city.name) {
+                if (city.weather == null) {
+                    viewModel.loadWeather(city.name)
+                }
+            }
             CityItem(
                 city = city,
                 onClose = {
@@ -84,7 +87,7 @@ fun CityItem(
             )
             Text(
                 modifier = Modifier,
-                text = city.weather ?: "Carregando clima...",
+                text = city.weather?.desc?:"carregando...",
                 fontSize = 16.sp
             )
         }
