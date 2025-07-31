@@ -70,6 +70,8 @@ dependencies {
     implementation(libs.cronet.embedded)
     implementation(libs.transportation.consumer)
     testImplementation(libs.junit)
+    implementation("io.coil-kt:coil-compose:2.5.0") // coil
+    implementation("com.squareup.picasso:picasso:2.8") // Picasso
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

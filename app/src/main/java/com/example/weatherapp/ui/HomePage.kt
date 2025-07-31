@@ -29,6 +29,9 @@ import com.example.weatherapp.model.Forecast
 import com.example.weatherapp.model.MainViewModel
 import java.text.DecimalFormat
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
+import com.example.weatherapp.R
 
 
 @Composable
@@ -41,10 +44,11 @@ fun ForecastItem(forecast: Forecast, onClick: (Forecast) -> Unit, modifier: Modi
             .fillMaxWidth()
             .padding(12.dp)
             .clickable(onClick = { onClick(forecast) }), verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Localized description",
-            modifier = Modifier.size(48.dp)
+        AsyncImage(
+            model = forecast.imgUrl,
+            modifier = Modifier.size(40.dp),
+            error = painterResource(id = R.drawable.loading),
+            contentDescription = "Imagem"
         )
 
         Spacer (modifier = Modifier.size(16.dp))
@@ -92,10 +96,10 @@ fun HomePage(viewModel: MainViewModel) {
             }
         } else {
             Row {
-                Icon(
-                    imageVector = Icons.Filled.AccountBox,
-                    contentDescription = "Localized description",
-                    modifier = Modifier.size(150.dp)
+                AsyncImage( model = viewModel.city?.weather?.imgUrl,
+                    modifier = Modifier.size(100.dp),
+                    error = painterResource(id = R.drawable.loading),
+                    contentDescription = "Imagem"
                 )
                 Column {
                     Spacer(modifier = Modifier.size(12.dp))
