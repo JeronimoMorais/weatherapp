@@ -21,4 +21,7 @@ interface WeatherServiceAPI {
     companion object {
         const val BASE_URL = "https://api.weatherapi.com/v1/"
     }
+
+    @GET("forecast.json?key=$WEATHER_API_KEY&days=10&lang=pt")
+    fun forecast(@Query("q") name: String): Call<APIWeatherForecast?>
 }
