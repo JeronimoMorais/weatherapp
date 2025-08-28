@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -40,6 +41,7 @@ import com.example.weatherapp.ui.nav.Route
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import android.Manifest.permission
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -59,7 +61,14 @@ class MainActivity : ComponentActivity() {
             val showButton = currentRoute.value?.destination?.hasRoute(Route.List::class) == true
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
-                onResult = {})
+                onResult = { isGranted ->
+                    if (isGranted) {
+                        println("Permissão concedida!")
+                    } else {
+                    println("Permissão negada!")
+                    }
+                }
+            )
 
             WeatherAppTheme {
                 if (showDialog) CityDialog(
@@ -115,6 +124,10 @@ class MainActivity : ComponentActivity() {
                         }
                         launchSingleTop = true
                     }
+                }
+
+                LaunchedEffect(Unit) {
+                    launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             }
         }

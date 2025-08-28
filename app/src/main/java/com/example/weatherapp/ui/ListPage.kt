@@ -27,10 +27,12 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.R
 import com.example.weatherapp.model.MainViewModel
 import com.example.weatherapp.ui.nav.Route
 import coil.compose.AsyncImage
+import com.example.weatherapp.ui.nav.BottomNavItem.HomeButton.icon
 
 @Composable
 fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
@@ -55,7 +57,8 @@ fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
                 },
                 onClose = {
                     viewModel.remove(city)
-                }
+                },
+                viewModel = viewModel
             )
         }
     }
@@ -66,7 +69,8 @@ fun CityItem(
     city: City,
     onClick: () -> Unit,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel
 ) {
     Row(
         modifier = modifier
@@ -91,6 +95,15 @@ fun CityItem(
                 fontSize = 16.sp
             )
         }
+        Icon(
+            imageVector = icon,
+            contentDescription = "Monitorada?",
+            modifier = Modifier.size(32.dp).clickable(enabled=viewModel.city != null){
+                viewModel.update(
+                    viewModel.city!!.copy(
+                        isMonitored = !viewModel.city!!.isMonitored))
+            }
+        )
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = "Close")
         }

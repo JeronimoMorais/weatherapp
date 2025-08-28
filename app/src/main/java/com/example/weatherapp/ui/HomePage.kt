@@ -25,10 +25,13 @@ import com.example.weatherapp.model.Forecast
 import com.example.weatherapp.model.MainViewModel
 import java.text.DecimalFormat
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import com.example.weatherapp.R
-
 
 @Composable
 fun ForecastItem(forecast: Forecast, onClick: (Forecast) -> Unit, modifier: Modifier = Modifier) {
@@ -90,6 +93,30 @@ fun HomePage(viewModel: MainViewModel) {
                     fontSize = 28.sp
                 )
             }
+
+//            Icon(
+//                imageVector = icon, contentDescription = "Monitorada?",
+//                modifier = Modifier.size(32.dp).clickable(enabled=viewModel.city != null){
+//                    viewModel.update(
+//                        viewModel.city!!.copy(
+//                            isMonitored = !viewModel.city!!.isMonitored))
+//                }
+//            )
+
+            Icon(
+                imageVector = if (viewModel.city?.isMonitored == true) Icons.Filled.Notifications else Icons.Outlined.Notifications,
+                contentDescription = "Monitorada?",
+                modifier = Modifier
+                    .size(32.dp)
+                    .clickable(enabled = viewModel.city != null) {
+                        viewModel.update(
+                            viewModel.city!!.copy(
+                                isMonitored = !viewModel.city!!.isMonitored
+                            )
+                        )
+                    }
+            )
+
         } else {
             Row {
                 AsyncImage( model = viewModel.city?.weather?.imgUrl,
