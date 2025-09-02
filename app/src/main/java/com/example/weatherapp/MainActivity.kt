@@ -1,6 +1,7 @@
 package com.example.weatherapp
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,17 +32,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.api.WeatherService
 import com.example.weatherapp.db.fb.FBDatabase
+import com.example.weatherapp.db.local.LocalDatabase
 import com.example.weatherapp.model.MainViewModel
 import com.example.weatherapp.model.MainViewModelFactory
+import com.example.weatherapp.repo.Repository
 import com.example.weatherapp.ui.CityDialog
 import com.example.weatherapp.ui.nav.BottomNavBar
 import com.example.weatherapp.ui.nav.BottomNavItem
 import com.example.weatherapp.ui.nav.MainNavHost
 import com.example.weatherapp.ui.nav.Route
 import com.example.weatherapp.ui.theme.WeatherAppTheme
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import android.Manifest.permission
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -51,84 +53,94 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            val fbDB = remember { FBDatabase() }
-            val weatherService = remember { WeatherService() }
-            val viewModel: MainViewModel =
-                viewModel(factory = MainViewModelFactory(fbDB, weatherService))
-            val navController = rememberNavController()
-            var showDialog by remember { mutableStateOf(false) }
-            val currentRoute = navController.currentBackStackEntryAsState()
-            val showButton = currentRoute.value?.destination?.hasRoute(Route.List::class) == true
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission(),
-                onResult = { isGranted ->
-                    if (isGranted) {
-                        println("Permissão concedida!")
-                    } else {
-                    println("Permissão negada!")
+            val uid = Firebase.auth.currentUser?.uid
+
+            if (uid != null) {
+                val fbDB = remember { FBDatabase() }
+                val localDB = remember { LocalDatabase(this, "weather_db_$uid") }
+                val repository = remember { Repository(fbDB, localDB) }
+                val weatherService = remember { WeatherService() }
+                val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(repository, weatherService))
+
+                val navController = rememberNavController()
+                var showDialog by remember { mutableStateOf(false) }
+                val currentRoute = navController.currentBackStackEntryAsState()
+                val showButton = currentRoute.value?.destination?.hasRoute(Route.List::class) == true
+                val launcher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                    onResult = { isGranted ->
+                        if (isGranted) {
+                            println("Permissão concedida!")
+                        } else {
+                            println("Permissão negada!")
+                        }
                     }
-                }
-            )
+                )
 
-            WeatherAppTheme {
-                if (showDialog) CityDialog(
-                    onDismiss = { showDialog = false },
-                    onConfirm = { city ->
-                        if (city.isNotBlank()) viewModel.add(city)
-                        showDialog = false
-                    })
+                WeatherAppTheme {
+                    if (showDialog) CityDialog(
+                        onDismiss = { showDialog = false },
+                        onConfirm = { city ->
+                            if (city.isNotBlank()) viewModel.add(city)
+                            showDialog = false
+                        })
 
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                val name = viewModel.user?.name ?: "[não logado]"
-                                Text("Bem-vindo/a! $name")
-                            },
-                            actions = {
-                                IconButton(onClick = {
-                                    Firebase.auth.signOut()
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                                        contentDescription = "Sair"
-                                    )
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    val name = viewModel.user?.name ?: "[não logado]"
+                                    Text("Bem-vindo/a! $name")
+                                },
+                                actions = {
+                                    IconButton(onClick = {
+                                        Firebase.auth.signOut()
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                            contentDescription = "Sair"
+                                        )
+                                    }
+                                }
+                            )
+                        },
+                        bottomBar = {
+                            val items = listOf(
+                                BottomNavItem.HomeButton,
+                                BottomNavItem.ListButton,
+                                BottomNavItem.MapButton,
+                            )
+                            BottomNavBar(viewModel, items)
+                        },
+                        floatingActionButton = {
+                            if (showButton) {
+                                FloatingActionButton(onClick = { showDialog = true }) {
+                                    Icon(Icons.Default.Add, contentDescription = "Adicionar")
                                 }
                             }
-                        )
-                    },
-                    bottomBar = {
-                        val items = listOf(
-                            BottomNavItem.HomeButton,
-                            BottomNavItem.ListButton,
-                            BottomNavItem.MapButton,
-                        )
-                        BottomNavBar(viewModel, items)
-                    },
-                    floatingActionButton = {
-                        if (showButton) {
-                            FloatingActionButton(onClick = { showDialog = true })
-                            { Icon(Icons.Default.Add, contentDescription = "Adicionar") }
+                        }
+                    ) { innerPadding ->
+                        Box(modifier = Modifier.padding(innerPadding)) {
+                            MainNavHost(navController = navController, viewModel = viewModel)
                         }
                     }
-                ) { innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding)) {
-                        MainNavHost(navController = navController, viewModel = viewModel)
-                    }
-                }
-                LaunchedEffect(viewModel.page) {
-                    navController.navigate(viewModel.page) {
-                        navController.graph.startDestinationRoute?.let {
-                            popUpTo(it) { saveState = true }
-                            restoreState = true
+                    LaunchedEffect(viewModel.page) {
+                        navController.navigate(viewModel.page) {
+                            navController.graph.startDestinationRoute?.let {
+                                popUpTo(it) { saveState = true }
+                                restoreState = true
+                            }
+                            launchSingleTop = true
                         }
-                        launchSingleTop = true
                     }
-                }
 
-                LaunchedEffect(Unit) {
-                    launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    LaunchedEffect(Unit) {
+                        launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    }
                 }
+            } else {
+                 startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+                 finish()
             }
         }
     }
