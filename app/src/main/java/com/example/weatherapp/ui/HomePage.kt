@@ -127,9 +127,32 @@ fun HomePage(viewModel: MainViewModel) {
                 Column {
                     Spacer(modifier = Modifier.size(12.dp))
 
-                    Text(
-                        text = viewModel.city?.name ?: "Selecione uma cidade...", fontSize = 28.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = viewModel.city?.name ?: "Selecione uma cidade...",
+                            fontSize = 28.sp
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        val icon = if (viewModel.city?.isMonitored == true)
+                            Icons.Filled.Notifications
+                        else
+                            Icons.Outlined.Notifications
+
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = "Monitorada?",
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clickable(enabled = viewModel.city != null) {
+                                    viewModel.update(
+                                        viewModel.city!!.copy(
+                                            isMonitored = !viewModel.city!!.isMonitored
+                                        )
+                                    )
+                                }
+                        )
+                    }
+
                     Spacer(modifier = Modifier.size(12.dp))
 
                     Text(text = viewModel.city?.weather?.desc ?: "...", fontSize = 22.sp)

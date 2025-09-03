@@ -25,6 +25,8 @@ import com.example.weatherapp.model.City
 import androidx.compose.material3.IconButton
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -57,8 +59,7 @@ fun ListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
                 },
                 onClose = {
                     viewModel.remove(city)
-                },
-                viewModel = viewModel
+                }
             )
         }
     }
@@ -69,8 +70,7 @@ fun CityItem(
     city: City,
     onClick: () -> Unit,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: MainViewModel
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
@@ -95,14 +95,15 @@ fun CityItem(
                 fontSize = 16.sp
             )
         }
+        val monitorIcon = if (city.isMonitored)
+            Icons.Filled.Notifications
+        else
+            Icons.Outlined.Notifications
+
         Icon(
-            imageVector = icon,
+            imageVector = monitorIcon,
             contentDescription = "Monitorada?",
-            modifier = Modifier.size(32.dp).clickable(enabled=viewModel.city != null){
-                viewModel.update(
-                    viewModel.city!!.copy(
-                        isMonitored = !viewModel.city!!.isMonitored))
-            }
+            modifier = Modifier.size(28.dp) // sem .clickable
         )
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = "Close")
