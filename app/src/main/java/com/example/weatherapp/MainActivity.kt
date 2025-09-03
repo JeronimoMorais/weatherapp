@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,7 @@ import com.example.weatherapp.db.fb.FBDatabase
 import com.example.weatherapp.db.local.LocalDatabase
 import com.example.weatherapp.model.MainViewModel
 import com.example.weatherapp.model.MainViewModelFactory
+import com.example.weatherapp.monitor.ForecastMonitor
 import com.example.weatherapp.repo.Repository
 import com.example.weatherapp.ui.CityDialog
 import com.example.weatherapp.ui.nav.BottomNavBar
@@ -44,6 +46,7 @@ import com.example.weatherapp.ui.nav.Route
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import androidx.core.util.Consumer
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -60,8 +63,8 @@ class MainActivity : ComponentActivity() {
                 val localDB = remember { LocalDatabase(this, "weather_db_$uid") }
                 val repository = remember { Repository(fbDB, localDB) }
                 val weatherService = remember { WeatherService() }
-                val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(repository, weatherService))
-
+                val forecastMonitor = remember { ForecastMonitor(this) }
+                val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(repository, weatherService, forecastMonitor))
                 val navController = rememberNavController()
                 var showDialog by remember { mutableStateOf(false) }
                 val currentRoute = navController.currentBackStackEntryAsState()
@@ -76,6 +79,31 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 )
+
+                val locationLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                    onResult = { isGranted ->
+                        println("Permissão de localização: $isGranted")
+                    }
+                )
+
+                val notificationLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                    onResult = { isGranted ->
+                        println("Permissão de notificações: $isGranted")
+                    }
+                )
+
+                DisposableEffect(Unit) {
+                    val listener = Consumer<Intent> { intent ->
+                        val name = intent.getStringExtra("city")
+                        val city = viewModel.cities.find { it.name == name }
+                        viewModel.city = city
+                        viewModel.page = Route.Home
+                    }
+                    addOnNewIntentListener(listener)
+                    onDispose { removeOnNewIntentListener(listener) }
+                }
 
                 WeatherAppTheme {
                     if (showDialog) CityDialog(
@@ -136,6 +164,20 @@ class MainActivity : ComponentActivity() {
 
                     LaunchedEffect(Unit) {
                         launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+
+                    LaunchedEffect(viewModel.page) {
+                        navController.navigate(viewModel.page) {
+                            navController.graph.startDestinationRoute?.let {
+                                popUpTo(it) { saveState = true }
+                                restoreState = true
+                            }
+                            launchSingleTop = true
+                        }
                     }
                 }
             } else {

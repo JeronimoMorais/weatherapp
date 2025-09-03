@@ -12,13 +12,14 @@ import com.example.weatherapp.db.fb.FBCity
 import com.example.weatherapp.db.fb.FBDatabase
 import com.example.weatherapp.db.fb.FBUser
 import com.example.weatherapp.db.fb.toFBCity
+import com.example.weatherapp.monitor.ForecastMonitor
 import com.example.weatherapp.repo.Repository
 import com.example.weatherapp.ui.nav.Route
 import com.google.android.gms.maps.model.LatLng
 import kotlin.collections.remove
 
 
-class MainViewModel(private val repository: Repository, private val service: WeatherService) : ViewModel(),
+class MainViewModel(private val repository: Repository, private val service: WeatherService, private val monitor: ForecastMonitor) : ViewModel(),
     Repository.Listener {
 
 
@@ -113,7 +114,7 @@ class MainViewModel(private val repository: Repository, private val service: Wea
     }
 
     override fun onUserSignOut() {
-        //TODO("Not yet implemented")
+        monitor.cancelAll()
     }
 
     override fun onCityAdded(city: City) {
@@ -126,6 +127,7 @@ class MainViewModel(private val repository: Repository, private val service: Wea
         if (_city.value?.name == city.name) {
             _city.value = _cities[city.name]
         }
+        monitor.updateCity(city)
     }
 
     override fun onCityUpdated(city: City) {
@@ -138,6 +140,7 @@ class MainViewModel(private val repository: Repository, private val service: Wea
         if (_city.value?.name == city.name) {
             _city.value = _cities[city.name]
         }
+        monitor.updateCity(city)
     }
 
     override fun onCityRemoved(city: City) {
@@ -145,16 +148,18 @@ class MainViewModel(private val repository: Repository, private val service: Wea
         if (_city.value?.name == city.name) {
             _city.value = null
         }
+        monitor.cancelCity(city)
     }
 }
 
 class MainViewModelFactory(
     private val repository: Repository,
-    private val service: WeatherService
+    private val service: WeatherService,
+    private val monitor: ForecastMonitor
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return MainViewModel(repository, service) as T
+            return MainViewModel(repository, service, monitor) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
