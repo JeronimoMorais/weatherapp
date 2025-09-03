@@ -165,7 +165,7 @@ fun HomePage(viewModel: MainViewModel) {
             LaunchedEffect(viewModel.city!!.name) {
                 if (viewModel.city!!.forecast == null ||
                     viewModel.city!!.forecast!!.isEmpty()) {
-                    viewModel.loadForecast(viewModel.city!!.name)
+                    viewModel.loadForecast(viewModel.city!!)
                 }
             }
             if (viewModel.city?.forecast != null) {
